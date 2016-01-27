@@ -21,11 +21,16 @@
 
 #include "stimulus_generated.h"
 #include "playbackState_generated.h"
+#include "runSimTrigger_generated.h"
+#include "statusRequestMsg_generated.h"
+#include "proxyStatusMsg_generated.h"
 
 namespace monsteer
 {
 namespace steering
 {
+
+
 zeq::Event serializeStimulus( const std::string& messageID,
                               const brion::uint32_ts& cells,
                               const std::string& params,
@@ -94,6 +99,73 @@ SimulationPlaybackState deserializePlaybackState( const zeq::Event &event )
 
     return state;
 }
+
+zeq::Event serializeSimulationRunTrigger( const std::string& messageID,
+                                       const double duration )
+{
+    zeq::Event event( EVENT_RUNSIMTRIGGER );
+    flatbuffers::FlatBufferBuilder& fbb = event.getFBB();
+    auto fbMessageID = fbb.CreateString( messageID );
+
+    fbb.Finish( CreateRunSimTrigger( fbb, fbMessageID, duration ));
+    return event;
+
+}
+
+SimulationRunTrigger deserializeSimulationRunTrigger( const zeq::Event &event )
+{
+    auto data = GetRunSimTrigger( event.getData(  ));
+
+    SimulationRunTrigger trigger;
+    trigger.messageID = data->messageID()->c_str();
+    trigger.duration = (double)data->duration();
+
+    return trigger;
+}
+
+ProxyStatus deserializeProxyStatus( const zeq::Event& event )
+{
+    auto data = GetProxyStatusMsg( event.getData( ));
+
+    ProxyStatus status;
+    status.messageID = data->messageID()->c_str();
+    status.state = (ProxyStatus::State)data->state();
+    
+    return status;
+}
+
+zeq::Event serializeProxyStatus( const std::string& messageID, const ProxyStatus::State state )
+{
+    zeq::Event event( EVENT_PROXYSTATUSMSG );
+    flatbuffers::FlatBufferBuilder& fbb = event.getFBB();
+    auto fbMessageID = fbb.CreateString( messageID );
+
+    fbb.Finish( CreateProxyStatusMsg( fbb, fbMessageID, state) );
+    return event;
+
+}
+
+StatusRequest deserializeStatusRequest( const zeq::Event& event )
+{
+    auto data = GetStatusRequestMsg( event.getData( ));
+
+    StatusRequest request;
+    request.messageID = data->messageID()->c_str();
+    
+    return request;
+}
+
+zeq::Event serializeStatusRequest( const std::string& messageID )
+{
+    zeq::Event event( EVENT_STATUSREQUESTMSG );
+    flatbuffers::FlatBufferBuilder& fbb = event.getFBB();
+    auto fbMessageID = fbb.CreateString( messageID );
+
+    fbb.Finish( CreateStatusRequestMsg( fbb, fbMessageID ) );
+    return event;
+
+}
+
 
 }
 }

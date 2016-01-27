@@ -30,7 +30,8 @@ struct SimulatorData
     enum PlaybackState
     {
         PAUSE = 0u,
-        PLAY = 1u
+        PLAY = 1u,
+        ONDEMAND = 2u
     };
 
     monsteer::URI subscriber;
@@ -38,6 +39,7 @@ struct SimulatorData
     brion::uint32_ts cells;
     std::string stimulusString;
     PlaybackState playbackState;
+    double requestedSimTime;
 };
 
 SimulatorData globalData;
@@ -81,6 +83,12 @@ public:
     {
         globalData.playbackState = SimulatorData::PAUSE;
     }
+    
+    void simulate ( const double duration )
+    {
+        globalData.playbackState = SimulatorData::ONDEMAND;
+        globalData.requestedSimTime = duration;
+    }
 };
 
 lunchbox::PluginRegisterer< DummySimulator > registerer;
@@ -104,6 +112,7 @@ BOOST_AUTO_TEST_CASE( test_create_unhandled )
 monsteer::URI uri( "dummy://" );
 uint32_t cellIds[] = {3, 7, 12, 20, 24, 30, 28, 1};
 const std::string jsonParameters( "blahblah" );
+double duration = 20.0;
 
 namespace std
 {
@@ -156,4 +165,14 @@ BOOST_AUTO_TEST_CASE( test_play_pause )
 
     simulator.pause();
     BOOST_CHECK( globalData.playbackState == SimulatorData::PAUSE );
+}
+
+BOOST_AUTO_TEST_CASE( test_simulate )
+{
+    monsteer::Simulator simulator( uri );
+
+    simulator.simulate( duration );
+    BOOST_CHECK (globalData.playbackState == SimulatorData::ONDEMAND );
+    BOOST_CHECK (globalData.requestedSimTime - duration < 0.001 );
+
 }

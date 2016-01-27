@@ -111,6 +111,18 @@ public:
      */
     void pause();
 
+    /*
+     * Runs the simulation for a fixed duration.
+     *
+     * The specified duration applies only to the internal music-timer in the 
+     * HBP music proxy application. The same restrictions as with play() apply.
+     *
+     * @version 0.3
+     *
+     *
+     */
+    void simulate( const double duration );
+
 private:
     detail::Simulator* _impl;
 };

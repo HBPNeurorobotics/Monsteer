@@ -6,7 +6,12 @@
 
 
 flatbuffers_generate_c_headers(STEERING_FB steering/stimulus.fbs
-                                           steering/playbackState.fbs)
+                                           steering/playbackState.fbs
+                                           steering/runSimTrigger.fbs
+                                           steering/statusRequestMsg.fbs
+                                           steering/proxyStatusMsg.fbs)
+                                        
+
 
 list(APPEND MONSTEER_PUBLIC_HEADERS
    steering/simulator.h

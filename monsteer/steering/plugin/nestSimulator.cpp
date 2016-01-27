@@ -18,13 +18,16 @@
  */
 
 #include "nestSimulator.h"
-#include <monsteer/steering/vocabulary.h>
 
 #include <zeq/subscriber.h>
 #include <zeq/publisher.h>
 
 #include <lunchbox/debug.h>
 #include <lunchbox/pluginRegisterer.h>
+
+#include <iostream>
+
+#include <chrono>
 
 namespace monsteer
 {
@@ -37,9 +40,13 @@ lunchbox::PluginRegisterer< NESTSimulator > registerer;
 }
 
 NESTSimulator::NESTSimulator( const monsteer::SimulatorPluginInitData& pluginData )
+    : _proxyState( monsteer::steering::ProxyStatus::State::BUSY )
 {
     _replySubscriber.reset( new zeq::Subscriber( pluginData.subscriber ));
     _requestPublisher.reset( new zeq::Publisher( pluginData.publisher ));
+    _replySubscriber->registerHandler(
+            EVENT_PROXYSTATUSMSG, 
+            boost::bind( &NESTSimulator::_onProxyStatusUpdate, this, _1 )); 
 }
 
 bool NESTSimulator::handles( const monsteer::SimulatorPluginInitData& pluginData )
@@ -47,6 +54,29 @@ bool NESTSimulator::handles( const monsteer::SimulatorPluginInitData& pluginData
     const std::string url = "monsteer";
     return !pluginData.subscriber.getScheme().compare( 0, url.size(), url ) &&
            !pluginData.publisher.getScheme().compare( 0, url.size(), url );
+}
+
+inline void NESTSimulator::barrier()
+{
+    uint32_t timeout = 1000;
+    auto startTime = std::chrono::high_resolution_clock::now();
+
+    while (_proxyState != monsteer::steering::ProxyStatus::State::READY)
+    //_replySubscriber->receive(0);
+    {
+        while(_replySubscriber->receive(0));
+        const auto endTime = std::chrono::high_resolution_clock::now();
+        const uint32_t elapsed =
+            std::chrono::nanoseconds( endTime - startTime ).count() /
+            1000000;
+        if( elapsed > timeout )
+            if(_proxyState != monsteer::steering::ProxyStatus::State::READY )
+            {
+                _requestPublisher->publish(
+                        serializeStatusRequest( std::to_string(++_lastRequestID) ));
+                startTime = std::chrono::high_resolution_clock::now();
+            }
+    }
 }
 
 void NESTSimulator::injectStimulus( const std::string& jsonParameters,
@@ -76,6 +106,29 @@ void NESTSimulator::pause()
 {
     _requestPublisher->publish(
         serializePlaybackState( "", SimulationPlaybackState::PAUSE ));
+}
+
+void NESTSimulator::simulate( const double duration)
+{
+    //_requestPublisher->publish(
+     //   serializePlaybackState( "", SimulationPlaybackState::ONDEMAND ));
+    //_replySubscriber->receive(0);
+    
+    barrier();
+    _proxyState = monsteer::steering::ProxyStatus::State::BUSY;
+    _requestPublisher->publish(
+            serializeSimulationRunTrigger( "", duration ));
+    barrier();
+
+
+}
+
+void NESTSimulator::_onProxyStatusUpdate( const zeq::Event& event )  
+{
+    LBASSERT( event.getType() == EVENT_PROXYSTATUSMSG ); 
+    const monsteer::steering::ProxyStatus& state = 
+        monsteer::steering::deserializeProxyStatus( event );
+    _proxyState = state.state;
 }
 
 

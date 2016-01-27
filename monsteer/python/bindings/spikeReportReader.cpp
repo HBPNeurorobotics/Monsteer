@@ -51,6 +51,11 @@ class_< SpikeReportReader, boost::noncopyable >(
     .def( "getSpikes",
           ( Spikes (SpikeReportReader::* )( float, float ))
           &SpikeReportReader::getSpikes )
+    .def( "getSpikes",
+          ( Spikes (SpikeReportReader::* )( uint32_t ))
+          &SpikeReportReader::getSpikes )
+    .def( "clear", &SpikeReportReader::clear )
+    .def( "clearAll", &SpikeReportReader::clearAll )
     .def( "hasEnded", &SpikeReportReader::hasEnded )
     .def( "isStream", &SpikeReportReader::isStream );
 

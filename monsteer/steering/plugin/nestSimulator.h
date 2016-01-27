@@ -23,6 +23,7 @@
 #include <monsteer/steering/simulatorPlugin.h>
 #include <lunchbox/uri.h>
 #include <boost/scoped_ptr.hpp>
+#include <monsteer/steering/vocabulary.h>
 
 namespace monsteer
 {
@@ -52,9 +53,22 @@ public:
     /** @copydoc monsteer::Simulator::pause */
     void pause() final;
 
+    /** @copydoc monsteer::Simulator::simulate*/
+    void simulate( const double duration ) final;
+
+
 private:
     boost::scoped_ptr< zeq::Subscriber > _replySubscriber;
     boost::scoped_ptr< zeq::Publisher > _requestPublisher;
+    monsteer::steering::ProxyStatus::State _proxyState;
+    uint32_t _lastRequestID = 1;
+    uint32_t _lastAcknowledgeID = 0;
+
+    /** @copydoc monsteer::Simulator::_onProxyStatusUpdate */
+    void _onProxyStatusUpdate( const zeq::Event& event );
+
+    /** @copydoc monsteer::Simulator::barrier */
+    void barrier();
 };
 
 }

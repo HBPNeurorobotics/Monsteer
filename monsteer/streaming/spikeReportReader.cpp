@@ -69,6 +69,22 @@ SpikeReportReader::~SpikeReportReader()
     delete _impl;
 }
 
+
+Spikes SpikeReportReader::getSpikes( const uint32_t timeout)
+{
+
+    brion::SpikeReport& report = _impl->_report;
+    // Ensuring that we don't block if no spikes have been received.
+    if( report.getReadMode() == brion::SpikeReport::STREAM )
+    {
+        report.waitUntil( brion::UNDEFINED_TIMESTAMP, timeout );
+    }
+
+    return BrionSpikes( report.getSpikes().begin(), report.getSpikes().end(),
+                        getStartTime(), getEndTime(),
+                        report.getSpikes().size( ));
+}
+
 Spikes SpikeReportReader::getSpikes()
 {
     brion::SpikeReport& report = _impl->_report;
@@ -96,6 +112,17 @@ Spikes SpikeReportReader::getSpikes()
     return BrionSpikes( report.getSpikes().begin(), report.getSpikes().end(),
                         getStartTime(), getEndTime(),
                         report.getSpikes().size( ));
+}
+
+void SpikeReportReader::clear( const float startTime, const float endTime )
+{
+    _impl->_report.clear(startTime, endTime);
+}
+
+void SpikeReportReader::clearAll()
+{
+    brion::SpikeReport& report = _impl->_report;
+    _impl->_report.clear(0, report.getLatestSpikeTime());
 }
 
 Spikes SpikeReportReader::getSpikes( const float startTime, const float endTime )

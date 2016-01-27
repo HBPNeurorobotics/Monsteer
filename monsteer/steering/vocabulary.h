@@ -26,6 +26,9 @@
 
 #include <monsteer/playbackState_zeq_generated.h>
 #include <monsteer/stimulus_zeq_generated.h>
+#include <monsteer/runSimTrigger_zeq_generated.h>
+#include <monsteer/statusRequestMsg_zeq_generated.h>
+#include <monsteer/proxyStatusMsg_zeq_generated.h>
 
 #include <monsteer/types.h>
 
@@ -51,14 +54,49 @@ struct SimulationPlaybackState
     enum State
     {
         PAUSE = 0u,
-        PLAY = 1u
+        PLAY = 1u,
+        ONDEMAND = 2u
     };
 
     SimulationPlaybackState()
-        : state( PLAY ) {}
+        : state( ONDEMAND ) {}
 
     std::string messageID;
     State state;
+};
+
+struct SimulationRunTrigger
+{
+    SimulationRunTrigger()
+        : duration(20.0)
+    {}
+
+    std::string messageID;
+    double duration;
+
+};
+
+struct ProxyStatus 
+{
+    enum State
+    {
+        READY = 0u,
+        BUSY = 1u
+    };
+
+    ProxyStatus()
+    {}
+
+    std::string messageID;
+    State state;
+};
+
+struct StatusRequest
+{
+    StatusRequest()
+    {}
+
+    std::string messageID;
 };
 
 zeq::Event serializeStimulus( const std::string& messageID,
@@ -73,6 +111,20 @@ zeq::Event serializePlaybackState(  const std::string& messageID,
                                     const SimulationPlaybackState::State state );
 
 SimulationPlaybackState deserializePlaybackState( const zeq::Event& event );
+
+zeq::Event serializeSimulationRunTrigger( const std::string& messageID,
+                                       const double duration );
+
+SimulationRunTrigger deserializeSimulationRunTrigger( const zeq::Event& event );
+
+zeq::Event serializeStatusRequest( const std::string& messageID );
+
+StatusRequest deserializeStatusRequest( const zeq::Event& event );
+
+zeq::Event serializeProxyStatus( const std::string& messageID,
+                                 const ProxyStatus::State state );
+
+ProxyStatus deserializeProxyStatus( const zeq::Event& event );
 
 }
 }

@@ -68,6 +68,9 @@ public:
 
     /** @copydoc Simulator::pause */
     virtual void pause() = 0;
+
+    /** @copydoc Simulator::pause */
+    virtual void simulate( const double duration ) = 0;
 };
 
 }

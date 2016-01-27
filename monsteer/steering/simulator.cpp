@@ -80,4 +80,9 @@ void Simulator::pause()
     _impl->plugin->pause();
 }
 
+void Simulator::simulate( const double duration )
+{
+    _impl->plugin->simulate( duration );
+}
+
 }

@@ -52,6 +52,12 @@ void Simulator_injectMultipleStimuli( monsteer::Simulator& simulator,
     simulator.injectMultipleStimuli( json, ids );
 }
 
+void Simulator_simulate( monsteer::Simulator& simulator, 
+                                      const double duration )
+{
+    simulator.simulate( duration );
+}
+
 SimulatorPtr Simulator_init( const std::string& uri )
 {
     return SimulatorPtr(new Simulator( lunchbox::URI( uri )));
@@ -66,5 +72,6 @@ void export_Simulator()
               Simulator_injectMultipleStimuli, arg( "json" ))
         .def( "play", &Simulator::play )
         .def( "pause", &Simulator::pause )
+        .def( "simulate", &Simulator::simulate, arg( "duration" ))
     ;
 }

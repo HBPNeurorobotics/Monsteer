@@ -78,6 +78,18 @@ public:
      */
     Spikes getSpikes( const float start, const float end );
 
+
+    Spikes getSpikes( const uint32_t timeout);
+    /**
+     * Remove all spikes inside a time window.
+     *
+     * This method will erase all spikes between [startTime, endTime].
+     *
+     * @version 0.3
+     */
+    void clear( const float startTime, const float endTime );
+    void clearAll();
+
     /**
      * @return true if any of the versions of getSpikes() reaches the end
      *         of the stream, if the report is static or if closed has been
@@ -107,6 +119,7 @@ public:
      * @version 0.2
      */
     float getEndTime() const;
+    
 
     /**
      * Close the data source.
