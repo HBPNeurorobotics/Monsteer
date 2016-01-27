@@ -229,6 +229,12 @@ public:
             _subscriber.receive( -1 );
             break;
         }
+        case monsteer::steering:SimulationPlaybackState::ONDEMAND:
+        {
+            _currentTime = musicTime;
+            while( _subscriber.receive( 0 ))
+             ;
+            break;
         }
     }
 
