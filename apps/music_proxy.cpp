@@ -227,15 +227,15 @@ public:
         case monsteer::steering::SimulationPlaybackState::PAUSE:
         {
             _subscriber.receive( -1 );
-            break;
         }
-        case monsteer::steering:SimulationPlaybackState::ONDEMAND:
+        case monsteer::steering::SimulationPlaybackState::ONDEMAND:
         {
             _currentTime = musicTime;
             while( _subscriber.receive( 0 ))
              ;
             break;
         }
+        };
     }
 
     monsteer::steering::SimulationPlaybackState::State getPlaybackState( ) const
