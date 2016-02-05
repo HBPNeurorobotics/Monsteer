@@ -229,12 +229,13 @@ public:
             _subscriber.receive( -1 );
             break;
         }
-        case monsteer::steering:SimulationPlaybackState::ONDEMAND:
+        case monsteer::steering::SimulationPlaybackState::ONDEMAND:
         {
             _currentTime = musicTime;
             while( _subscriber.receive( 0 ))
              ;
             break;
+        }
         }
     }
 
@@ -341,6 +342,7 @@ private:
     // Internal data structures
     SpikesHandler _spikesHandler;
     boost::scoped_ptr< SteeringHandler > _steeringHandler;
+
 };
 
 int32_t main( int32_t argc, char* argv[] )
